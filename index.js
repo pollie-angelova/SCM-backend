@@ -7,7 +7,7 @@ const userRouter = require('./routers/user')
 const deliveryRouter = require('./routers/delivery')
 const vehicleRouter = require('./routers/vehichles')
 const vehiclePropsRouter = require('./routers/vehicleProps')
-const googleSignInRouter = require('./routers/oauth')
+const oauthRouter = require('./routers/oauth')
 const { HTTPError, ErrorResponse } = require('./lib/responses')
 const logger = require('./lib/logger')
 
@@ -21,14 +21,14 @@ mongoose.connect(`mongodb://${process.env.DB_HOST}:27017/${process.env.DB_NAME}`
 })
 
 const OAUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
-const REDIRECT_URL = process.env.CLINET_REDIRECT;
+const REDIRECT_URL = process.env.CLIENT_REDIRECT;
 
 app.use(express.json())
 app.use(userRouter)
 app.use(deliveryRouter)
 app.use(vehicleRouter)
 app.use(vehiclePropsRouter)
-app.use(googleSignInRouter)
+app.use(oauthRouter)
 
 // catch 404 and forward it to error handler
 app.use((req, res, next) => {
