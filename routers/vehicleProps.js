@@ -22,15 +22,15 @@ router.post('/vehicles/:id/properties',auth.authorize('admin'), async (req, res)
         res.json(new SuccessResponse(data))
         
     } catch (e) {
-        res.status(err.status || 400).json (new BadRequestError("Bad update request", 400, ERROR_CODES.BAD_REQUEST))
+        res.status(e.status || 400).json (new BadRequestError("Bad update request", 400, ERROR_CODES.BAD_REQUEST))
     }
 })
 
 router.get('/vehicles/:id/properties', auth.authorize('admin'),async (req, res) => {
     try {
-        const vehicleProp = await VehicleProps.find({})
+        const vehicleProps = await VehicleProps.find({})
 
-        const data = {
+        const data = vehicleProps.map(vehicleProp=>({
 
             id: vehicleProp.id,
             vehicleId: vehicleProp.vehicleId,
@@ -38,12 +38,12 @@ router.get('/vehicles/:id/properties', auth.authorize('admin'),async (req, res) 
             propertyValue: vehicleProp.propertyValue,
             dateCreated: vehicleProp.dateCreated,
             dateUpdated: vehicleProp.dateUpdated,
-        }
+        }))
 
         res.json(new SuccessResponse(data))
     
     } catch (e) {
-        res.status(err.status || 500).json(new ErrorResponse(err.message, err.code))
+        res.status(e.status || 500).json(new ErrorResponse(e.message, e.code))
     }
 })
 
@@ -51,13 +51,13 @@ router.get('/vehicles/:id/properties/:propertyId',auth.authorize('admin'), async
     const _id = req.params.id
 
     try {
-        const vehicleProp = await VehicleProps.findById(_id)
+        const vehicleProps = await VehicleProps.findById(_id)
 
-        if (!vehicleProp) {
+        if (!vehicleProps) {
             throw new HTTPError("Vehicle Not Found", 404, ERROR_CODES.NOT_FOUND)
         }
 
-        const data = {
+        const data = vehicleProps.map(vehicleProp =>({
 
             id: vehicleProp.id,
             vehicleId: vehicleProp.vehicleId,
@@ -65,12 +65,12 @@ router.get('/vehicles/:id/properties/:propertyId',auth.authorize('admin'), async
             propertyValue: vehicleProp.propertyValue,
             dateCreated: vehicleProp.dateCreated,
             dateUpdated: vehicleProp.dateUpdated,
-        }
+        }))
 
         res.json(new SuccessResponse(data))
 
     } catch (e) {
-        res.status(err.status || 500).json(new ErrorResponse(err.message, err.code))
+        res.status(e.status || 500).json(new ErrorResponse(e.message, e.code))
     }
 })
 
@@ -85,13 +85,13 @@ router.patch('/vehicles/:id/properties/:propertyId',auth.authorize('admin'), asy
     }
 
     try {
-        const vehicleProp = await Vehicle.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
+        const vehicleProps = await Vehicle.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
 
-       if (!vehicleProp) {
+       if (!vehicleProps) {
             throw new HTTPError("Vehicle Property Not Found", 404, ERROR_CODES.NOT_FOUND)
         }
 
-        const data = {
+        const data = vehicleProps.map(vehicleProp=> ({
 
             id: vehicleProp.id,
             vehicleId: vehicleProp.vehicleId,
@@ -99,24 +99,24 @@ router.patch('/vehicles/:id/properties/:propertyId',auth.authorize('admin'), asy
             propertyValue: vehicleProp.propertyValue,
             dateCreated: vehicleProp.dateCreated,
             dateUpdated: vehicleProp.dateUpdated,
-        }
+        }))
 
         res.json(new SuccessResponse(data))
     
     } catch (e) {
-        res.status(err.status || 400).json (new BadRequestError("Bad update request", 400, ERROR_CODES.BAD_REQUEST))
+        res.status(e.status || 400).json (new BadRequestError("Bad update request", 400, ERROR_CODES.BAD_REQUEST))
     }
 })
 
 router.delete('/vehicles/:id/properties/:propertyId',auth.authorize('admin'), async (req, res) => {
     try {
-        const vehicleProp = await VehicleProps.findByIdAndDelete(req.params.id)
+        const vehicleProps = await VehicleProps.findByIdAndDelete(req.params.id)
 
-        if (!vehicleProp) {
+        if (!vehicleProps) {
             throw new HTTPError("Vehicle Property Not Found", 404, ERROR_CODES.NOT_FOUND)
         }
 
-        const data = {
+        const data = vehicleProps.map(vehicleProp =>( {
 
             id: vehicleProp.id,
             vehicleId: vehicleProp.vehicleId,
@@ -124,12 +124,12 @@ router.delete('/vehicles/:id/properties/:propertyId',auth.authorize('admin'), as
             propertyValue: vehicleProp.propertyValue,
             dateCreated: vehicleProp.dateCreated,
             dateUpdated: vehicleProp.dateUpdated,
-        }
+        }))
 
         res.json(new SuccessResponse(data))
     
     } catch (e) {
-        res.status(err.status || 500).json (new ErrorResponse(err.message, err.code))  
+        res.status(e.status || 500).json (new ErrorResponse(e.message, e.code))  
     }
 })
 

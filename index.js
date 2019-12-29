@@ -1,5 +1,6 @@
 const express = require('express')
 const opn = require('opn');
+require('dotenv').config()
 require('./db')
 const userRouter = require('./routers/user')
 const deliveryRouter = require('./routers/delivery')

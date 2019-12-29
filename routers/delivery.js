@@ -27,15 +27,19 @@ router.post('/deliveries', auth.authorize('user', 'admin'), async (req, res) => 
         res.json(new SuccessResponse(data))
 
     } catch (e) {
-        res.status(err.status || 400).json(new BadRequestError("Bad update request", 400, ERROR_CODES.BAD_REQUEST))
+        res.status(e.status || 400).json(new BadRequestError("Bad update request", 400, ERROR_CODES.BAD_REQUEST))
     }
 })
 
 router.get('/deliveries', auth.authorize('user', 'admin', 'courier'), async (req, res) => {
     try {
-        const delivery = await Delivery.find({})
+        const deliveries = await Delivery.find({})
 
-        const data = {
+        if(!deliveries){
+            throw new HTTPError("Delivery NOT Found", 404, ERROR_CODES.NOT_FOUND)
+        }
+
+        const data = deliveries.map(delivery => ({
 
             id: delivery.id,
             source: delivery.source,
@@ -46,12 +50,12 @@ router.get('/deliveries', auth.authorize('user', 'admin', 'courier'), async (req
             history: delivery.history,
             dateCreated: delivery.dateCreated,
             dateUpdated: delivery.dateUpdated,
-        }
+        }))
 
         res.json(new SuccessResponse(data))
 
     } catch (e) {
-        res.status(err.status || 500).json(new ErrorResponsse(err.message, err.code))
+        res.status(e.status || 500).json(new ErrorResponsse(e.message, err.code))
     }
 })
 
@@ -59,13 +63,17 @@ router.get('/deliveries/:id', auth.authorize('user', 'admin', 'courier'), async 
     const _id = req.params.id
 
     try {
-        const delivery = await User.findById(_id)
+        const deliveries = await User.findById(_id)
 
         if (!user) {
             throw new HTTPError("User not found", 404, ERROR_CODES.NOT_FOUND)
         }
 
-        const data = {
+        if(!deliveries){
+            throw new HTTPError("Delivery Not Found", 404, ERROR_CODES.NOT_FOUND)
+        }
+
+        const data = deliveries.map(delivery =>({
 
             id: delivery.id,
             source: delivery.source,
@@ -76,12 +84,12 @@ router.get('/deliveries/:id', auth.authorize('user', 'admin', 'courier'), async 
             history: delivery.history,
             dateCreated: delivery.dateCreated,
             dateUpdated: delivery.dateUpdated,
-        }
+        }))
 
         res.json(new SuccessResponse(data))
 
     } catch (e) {
-        res.status(err.status || 500).json(new ErrorResponse(err.message, err.code))
+        res.status(e.status || 500).json(new ErrorResponse(e.message, e.code))
     }
 })
 
@@ -95,13 +103,13 @@ router.patch('/deliveries/:id', auth.authorize('admin', 'courier'), async (req, 
     }
 
     try {
-        const delivery = await Delivery.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
+        const deliveries = await Delivery.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
 
-        if (!delivery) {
+        if (!deliveries) {
             throw new HTTPError("Delovery not found", 404, ERROR_CODES.NOT_FOUND)
         }
 
-        const data = {
+        const data = deliveries.map(delivery =>({
 
             id: delivery.id,
             source: delivery.source,
@@ -112,23 +120,23 @@ router.patch('/deliveries/:id', auth.authorize('admin', 'courier'), async (req, 
             history: delivery.history,
             dateCreated: delivery.dateCreated,
             dateUpdated: delivery.dateUpdated,
-        }
+        }))
 
         res.json(new SuccessResponse(data))
     } catch (e) {
-        res.status(err.status || 400).json(new BadRequestError("Bad update request", 400, ERROR_CODES.BAD_REQUEST))
+        res.status(e.status || 400).json(new BadRequestError("Bad update request", 400, ERROR_CODES.BAD_REQUEST))
     }
 })
 
 router.delete('/deliveries/:id', auth.authorize('admin'), async (req, res) => {
     try {
-        const delivery = await Delivery.findByIdAndDelete(req.params.id)
+        const deliveries = await Delivery.findByIdAndDelete(req.params.id)
 
-        if (!delivery) {
+        if (!deliveries) {
             throw new HTTPError("Delivery to delete not found", 404, ERROR_CODES.NOT_FOUND)
         }
 
-        const data = {
+        const data = deliveries.map(delivery => ({
 
             id: delivery.id,
             source: delivery.source,
@@ -139,13 +147,13 @@ router.delete('/deliveries/:id', auth.authorize('admin'), async (req, res) => {
             history: delivery.history,
             dateCreated: delivery.dateCreated,
             dateUpdated: delivery.dateUpdated,
-        }
+        }))
 
         res.json(new SuccessResponse(data))
 
     } catch (e) {
 
-        res.status(err.status || 500).json(new ErrorResponse(err.message, err.code))
+        res.status(e.status || 500).json(new ErrorResponse(e.message, e.code))
     }
 })
 

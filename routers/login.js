@@ -40,9 +40,9 @@ module.exports = function (app) {
 
             res.json(new SuccessResponse(data))
 
-        } catch (err) {
+        } catch (e) {
 
-            res.status(err.status || 500).json(new ErrorResponse(err.message, err.code))
+            res.status(e.status || 500).json(new ErrorResponse(e.message, e.code))
         }
     });
 
@@ -65,9 +65,9 @@ module.exports = function (app) {
 
             res.json(new SuccessResponse(data))
 
-        } catch (err) {
+        } catch (e) {
 
-            res.status(err.status || 500).json(new ErrorResponse(err.message, err.code))
+            res.status(e.status || 500).json(new ErrorResponse(e.message, e.code))
 
         }
     });

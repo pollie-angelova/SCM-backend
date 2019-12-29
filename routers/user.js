@@ -25,18 +25,22 @@ router.post('/users', auth.authorize('admin'), async (req, res) => {
 
         res.json(new SuccessResponse(data))
 
-    } catch (err) {
+    } catch (e) {
 
-        res.status(err.status || 500).json(new ErrorResponse(err.message, err.code))
+        res.status(e.status || 500).json(new ErrorResponse(e.message, e.code))
 
     }
 })
 
 router.get('/users', auth.authorize('admin'), async (req, res) => {
     try {
-        const user = await User.find({})
+        const users = await User.find({})
 
-        const data = {
+        if(!users){
+            throw new HTTPError("NO Users Found!", 404, ERROR_CODES.NOT_FOUND)
+        }
+
+        const data = users.map(user =>({
 
             id: user.id,
             name: user.name,
@@ -44,12 +48,12 @@ router.get('/users', auth.authorize('admin'), async (req, res) => {
             role: user.role,
             dateCreated: user.dateCreated,
             dateUpdated: user.dateUpdated,
-        }
+        }))
 
         res.json(new SuccessResponse(data))
 
     } catch (e) {
-        res.status(err.status || 500).json(new ErrorResponse(err.message, err.code))
+        res.status(e.status || 500).json(new ErrorResponse(e.message, e.code))
     }
 })
 
@@ -57,13 +61,13 @@ router.get('/users/:id', auth.authorize('admin'), async (req, res) => {
     const _id = req.params.id
 
     try {
-        const user = await User.findById(_id)
+        const users = await User.findById(_id)
 
-        if (!user) {
+        if (!users) {
             throw new HTTPError("User Not Found", 404, ERROR_CODES.NOT_FOUND)
         }
 
-        const data = {
+        const data = users.map(user =>({
 
             id: user.id,
             name: user.name,
@@ -71,12 +75,12 @@ router.get('/users/:id', auth.authorize('admin'), async (req, res) => {
             role: user.role,
             dateCreated: user.dateCreated,
             dateUpdated: user.dateUpdated,
-        }
+        }))
 
         res.json(new SuccessResponse(data))
 
     } catch (e) {
-        res.status(err.status || 500).json(new ErrorResponse(err.message, err.code))
+        res.status(e.status || 500).json(new ErrorResponse(e.message, e.code))
     }
 })
 
@@ -91,13 +95,13 @@ router.patch('/users/:id', auth.authorize('admin'), async (req, res) => {
     }
 
     try {
-        const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
+        const users = await User.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
 
-        if (!user) {
+        if (!users) {
             throw new HTTPError("User Not Found", 404, ERROR_CODES.NOT_FOUND)
         }
 
-        const data = {
+        const data = users.map(user => ({
 
             id: user.id,
             name: user.name,
@@ -105,27 +109,27 @@ router.patch('/users/:id', auth.authorize('admin'), async (req, res) => {
             role: user.role,
             dateCreated: user.dateCreated,
             dateUpdated: user.dateUpdated,
-        }
+        }))
 
         res.json(new SuccessResponse(data))
 
     } catch (e) {
 
-        res.status(err.status || 400).json (new BadRequestError("Bad update request", 400, ERROR_CODES.BAD_REQUEST))
+        res.status(e.status || 400).json (new BadRequestError("Bad update request", 400, ERROR_CODES.BAD_REQUEST))
        
     }
 })
 
 router.delete('/users/:id', auth.authorize('admin'), async (req, res) => {
     try {
-        const user = await User.findByIdAndDelete(req.params.id)
+        const users = await User.findByIdAndDelete(req.params.id)
 
-        if (!user) {
+        if (!users) {
             
             throw new HTTPError("User not found", 404, ERROR_CODES.NOT_FOUND)
         }
 
-        const data = {
+        const data = users.map( user =>({
 
             id: user.id,
             name: user.name,
@@ -133,13 +137,13 @@ router.delete('/users/:id', auth.authorize('admin'), async (req, res) => {
             role: user.role,
             dateCreated: user.dateCreated,
             dateUpdated: user.dateUpdated,
-        }
+        }))
 
         res.json(new SuccessResponse(data))
 
     } catch (e) {
 
-        res.status(err.status || 500).json (new ErrorResponse(err.message, err.code))  
+        res.status(e.status || 500).json (new ErrorResponse(e.message, e.code))  
     }
 })
 

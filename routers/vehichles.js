@@ -21,26 +21,26 @@ router.post('/vehicles', auth.authorize('admin'), async (req, res) => {
         res.json(new SuccessResponse(data))
     } catch (e) {
 
-        res.status(err.status || 400).json (new BadRequestError("Bad update request", 400, ERROR_CODES.BAD_REQUEST))
+        res.status(e.status || 400).json (new BadRequestError("Bad update request", 400, ERROR_CODES.BAD_REQUEST))
     }
 })
 
 router.get('/vehicles', auth.authorize('admin'), async (req, res) => {
     try {
-        const vehicle = await Vehicle.find({})
+        const vehicles = await Vehicle.find({})
 
-        const data = {
+        const data = vehicles.map(vehicle =>({
             id: vehicle.id,
             deliver: vehicle.deliver,
             location: vehicle.location,
             dateCreated: vehicle.dateCreated,
             dateUpdated: vehicle.dateUpdated
-        }
+        }))
     
         res.json(new SuccessResponse(data))
 
     } catch (e) {
-        res.status(err.status || 500).json(new ErrorResponse(err.message, err.code))
+        res.status(e.status || 500).json(new ErrorResponse(e.message, e.code))
     }
 })
 
@@ -48,24 +48,24 @@ router.get('/vehicles/:id', auth.authorize('admin', 'courier'), async (req, res)
     const _id = req.params.id
 
     try {
-        const vehicle = await Vehicle.findById(_id)
+        const vehicles = await Vehicle.findById(_id)
 
-        if (!vehicle) {
+        if (!vehicles) {
             throw new HTTPError("Vehicle Not Found", 404, ERROR_CODES.NOT_FOUND)
         }
         
-        const data = {
+        const data = vehicles.map(vehicle =>({
             id: vehicle.id,
             deliver: vehicle.deliver,
             location: vehicle.location,
             dateCreated: vehicle.dateCreated,
             dateUpdated: vehicle.dateUpdated
-        }
+        }))
     
         res.json(new SuccessResponse(data))
 
     } catch (e) {
-        res.status(err.status || 500).json(new ErrorResponse(err.message, err.code))
+        res.status(e.status || 500).json(new ErrorResponse(e.message, e.code))
     }
 })
 
@@ -80,13 +80,13 @@ router.patch('/vehicles/:id', auth.authorize('admin', 'courier'), async (req, re
     }
 
     try {
-        const vehicle = await Vehicle.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
+        const vehicles = await Vehicle.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
 
-       if (!vehicle) {
+       if (!vehicles) {
             throw new HTTPError("Vehicle Not Found", 404, ERROR_CODES.NOT_FOUND)
         }
 
-        const data = {
+        const data = vehicles.map(vehicle =>({
 
             id: user.id,
             name: user.name,
@@ -94,24 +94,24 @@ router.patch('/vehicles/:id', auth.authorize('admin', 'courier'), async (req, re
             role: user.role,
             dateCreated: user.dateCreated,
             dateUpdated: user.dateUpdated,
-        }
+        }))
 
         res.json(new SuccessResponse(data))
       
     } catch (e) {
-        res.status(err.status || 400).json (new BadRequestError("Bad update request", 400, ERROR_CODES.BAD_REQUEST))
+        res.status(e.status || 400).json (new BadRequestError("Bad update request", 400, ERROR_CODES.BAD_REQUEST))
     }
 })
 
 router.delete('/vehicles/:id', auth.authorize('admin'), async (req, res) => {
     try {
-        const vehicle = await Vehicle.findByIdAndDelete(req.params.id)
+        const vehicles = await Vehicle.findByIdAndDelete(req.params.id)
 
-        if (!vehicle) {
+        if (!vehicles) {
             throw new HTTPError("Vehicle Not Found", 404, ERROR_CODES.NOT_FOUND)
         }
 
-        const data = {
+        const data = vehicles.map(vehicle =>({
 
             id: user.id,
             name: user.name,
@@ -119,12 +119,12 @@ router.delete('/vehicles/:id', auth.authorize('admin'), async (req, res) => {
             role: user.role,
             dateCreated: user.dateCreated,
             dateUpdated: user.dateUpdated,
-        }
+        }))
 
         res.json(new SuccessResponse(data))
 
     } catch (e) {
-        res.status(err.status || 500).json (new ErrorResponse(err.message, err.code))  
+        res.status(e.status || 500).json (new ErrorResponse(e.message, e.code))  
     }
 })
 
