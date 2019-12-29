@@ -1,7 +1,7 @@
 const express = require('express')
 const Vehicle = require('../models/vehicle')
 const auth = require('../lib/auth')
-const { SuccessResponse, ErrorResponse, HTTPError, ERROR_CODES } = require('../lib/responses')
+const { SuccessResponse, ErrorResponse, HTTPError,BadRequestError, ERROR_CODES } = require('../lib/responses')
 const router = new express.Router()
 
 router.post('/vehicles', auth.authorize('admin'), async (req, res) => {
@@ -12,7 +12,7 @@ router.post('/vehicles', auth.authorize('admin'), async (req, res) => {
         
         const data = {
             id: vehicle.id,
-            deliver: vehicle.deliver,
+            driver: vehicle.driver,
             location: vehicle.location,
             dateCreated: vehicle.dateCreated,
             dateUpdated: vehicle.dateUpdated
@@ -31,7 +31,7 @@ router.get('/vehicles', auth.authorize('admin'), async (req, res) => {
 
         const data = vehicles.map(vehicle =>({
             id: vehicle.id,
-            deliver: vehicle.deliver,
+            driver: vehicle.driver,
             location: vehicle.location,
             dateCreated: vehicle.dateCreated,
             dateUpdated: vehicle.dateUpdated
@@ -56,7 +56,7 @@ router.get('/vehicles/:id', auth.authorize('admin', 'courier'), async (req, res)
         
         const data = vehicles.map(vehicle =>({
             id: vehicle.id,
-            deliver: vehicle.deliver,
+            driver: vehicle.driver,
             location: vehicle.location,
             dateCreated: vehicle.dateCreated,
             dateUpdated: vehicle.dateUpdated
@@ -71,7 +71,7 @@ router.get('/vehicles/:id', auth.authorize('admin', 'courier'), async (req, res)
 
 router.patch('/vehicles/:id', auth.authorize('admin', 'courier'), async (req, res) => {
     const updates = Object.keys(req.body)
-    const allowedUpdates = ['deliver', 'location']
+    const allowedUpdates = ['driver', 'location']
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
 
     if (!isValidOperation) {
@@ -87,13 +87,11 @@ router.patch('/vehicles/:id', auth.authorize('admin', 'courier'), async (req, re
         }
 
         const data = vehicles.map(vehicle =>({
-
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            dateCreated: user.dateCreated,
-            dateUpdated: user.dateUpdated,
+            id: vehicle.id,
+            driver: vehicle.driver,
+            location: vehicle.location,
+            dateCreated: vehicle.dateCreated,
+            dateUpdated: vehicle.dateUpdated
         }))
 
         res.json(new SuccessResponse(data))
@@ -113,12 +111,11 @@ router.delete('/vehicles/:id', auth.authorize('admin'), async (req, res) => {
 
         const data = vehicles.map(vehicle =>({
 
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            dateCreated: user.dateCreated,
-            dateUpdated: user.dateUpdated,
+            id: vehicle.id,
+            driver: vehicle.driver,
+            location: vehicle.location,
+            dateCreated: vehicle.dateCreated,
+            dateUpdated: vehicle.dateUpdated
         }))
 
         res.json(new SuccessResponse(data))

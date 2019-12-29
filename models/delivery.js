@@ -1,6 +1,6 @@
-const mangoose = require('mongoose')
+const mongoose = require('mongoose')
 
-const DeliveryStatusSchema = new mangoose.Schema({
+const DeliveryStatusSchema = new mongoose.Schema({
     name: {
         type: String,
         enum: ['new', 'awaiting_pickup', 'in_transit', 'awaiting_devivery', 'delivered']
@@ -14,7 +14,7 @@ const DeliveryStatusSchema = new mangoose.Schema({
         default: Date.now
     },
     user: {
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
     }
@@ -50,12 +50,12 @@ const DeliverySchema = new mongoose.Schema({
         type: String
     },
     senderId: {
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
     recepientId: {
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
@@ -73,7 +73,7 @@ const DeliverySchema = new mongoose.Schema({
 
 })
 
-const Delivery = mangoose.model('Delivery', DeliverySchema);
-const DeliveryStatus = mangoose.model('DeliveryStatus', DeliveryStatusSchema);
+const Delivery = mongoose.model('Delivery', DeliverySchema);
+const DeliveryStatus = mongoose.model('DeliveryStatus', DeliveryStatusSchema);
 
 module.exports = { Delivery, DeliveryStatus }

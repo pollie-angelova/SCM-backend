@@ -1,19 +1,27 @@
+require('dotenv').config()
+const mongoose = require('mongoose')
 const express = require('express')
 const opn = require('opn');
-require('dotenv').config()
-require('./db')
+require('./db');
 const userRouter = require('./routers/user')
 const deliveryRouter = require('./routers/delivery')
 const vehicleRouter = require('./routers/vehichles')
 const vehiclePropsRouter = require('./routers/vehicleProps')
-const googleSignInRouter = require('./routers/google-sign-in')
+const googleSignInRouter = require('./routers/oauth')
+const { HTTPError, ErrorResponse } = require('./lib/responses')
+const logger = require('./lib/logger')
 
 const app = express()
-const port = process.env.PORT || 3000
 
+// Database
+mongoose.connect(`mongodb://${process.env.DB_HOST}:27017/${process.env.DB_NAME}`, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true
+})
 
 const OAUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
-const REDIRECT_URL = `http://localhost:${port}/api/oauth/code`;
+const REDIRECT_URL = process.env.CLINET_REDIRECT;
 
 app.use(express.json())
 app.use(userRouter)
@@ -29,7 +37,7 @@ app.use((req, res, next) => {
 })
 
 // error handler
-app.use(function (err, req, res, next) {
+app.use(function (err, req, res) {
     logger.error(err.message)
     res.status(err.status || 500).json(new ErrorResponse(err.message))
 })

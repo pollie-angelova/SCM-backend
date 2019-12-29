@@ -15,7 +15,7 @@ router.post('/deliveries', auth.authorize('user', 'admin'), async (req, res) => 
 
             id: delivery.id,
             source: delivery.source,
-            destination: user.destination,
+            destination: delivery.destination,
             description: delivery.role,
             senderId: delivery.senderId,
             recepientId: delivery.recepientId,
@@ -43,7 +43,7 @@ router.get('/deliveries', auth.authorize('user', 'admin', 'courier'), async (req
 
             id: delivery.id,
             source: delivery.source,
-            destination: user.destination,
+            destination: delivery.destination,
             description: delivery.role,
             senderId: delivery.senderId,
             recepientId: delivery.recepientId,
@@ -55,7 +55,7 @@ router.get('/deliveries', auth.authorize('user', 'admin', 'courier'), async (req
         res.json(new SuccessResponse(data))
 
     } catch (e) {
-        res.status(e.status || 500).json(new ErrorResponsse(e.message, err.code))
+        res.status(e.status || 500).json(new ErrorResponse(e.message, e.code))
     }
 })
 
@@ -63,11 +63,7 @@ router.get('/deliveries/:id', auth.authorize('user', 'admin', 'courier'), async 
     const _id = req.params.id
 
     try {
-        const deliveries = await User.findById(_id)
-
-        if (!user) {
-            throw new HTTPError("User not found", 404, ERROR_CODES.NOT_FOUND)
-        }
+        const deliveries = await Delivery.findById(_id)
 
         if(!deliveries){
             throw new HTTPError("Delivery Not Found", 404, ERROR_CODES.NOT_FOUND)
@@ -77,7 +73,7 @@ router.get('/deliveries/:id', auth.authorize('user', 'admin', 'courier'), async 
 
             id: delivery.id,
             source: delivery.source,
-            destination: user.destination,
+            destination: delivery.destination,
             description: delivery.role,
             senderId: delivery.senderId,
             recepientId: delivery.recepientId,
@@ -113,7 +109,7 @@ router.patch('/deliveries/:id', auth.authorize('admin', 'courier'), async (req, 
 
             id: delivery.id,
             source: delivery.source,
-            destination: user.destination,
+            destination: delivery.destination,
             description: delivery.role,
             senderId: delivery.senderId,
             recepientId: delivery.recepientId,
@@ -140,7 +136,7 @@ router.delete('/deliveries/:id', auth.authorize('admin'), async (req, res) => {
 
             id: delivery.id,
             source: delivery.source,
-            destination: user.destination,
+            destination: delivery.destination,
             description: delivery.role,
             senderId: delivery.senderId,
             recepientId: delivery.recepientId,

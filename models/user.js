@@ -1,4 +1,6 @@
 const mongoose = require('mongoose')
+const utils = require('../lib/util')
+const { HTTPError, ERROR_CODES } = require('../lib/responses')
 
 const UserSchema = new mongoose.Schema({
     name: {

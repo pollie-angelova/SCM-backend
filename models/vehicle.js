@@ -1,5 +1,4 @@
 const mongoose = require("mongoose")
-const mongoDb = require('mongodb')
 
 const Vehicle = mongoose.model("Vehicle", {
 

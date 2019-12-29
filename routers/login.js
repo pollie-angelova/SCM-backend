@@ -11,14 +11,12 @@ module.exports = function (app) {
 
     app.use('/api/login', router);
 
-    router.post('/', async (req, res, next) => {
+    router.post('/', async (req, res) => {
 
         try {
             const user = await User.findOne({ email: req.body.email })
             if (!user) {
-
                 throw new HTTPError('User does not exist', 401, ERROR_CODES.NOT_FOUND)
-
             }
 
             if (!bcrypt.compareSync(req.body.password, user.password)) {
@@ -46,7 +44,7 @@ module.exports = function (app) {
         }
     });
 
-    router.post('/register', async (req, res, next) => {
+    router.post('/register', async (req, res) => {
 
         try {
 
