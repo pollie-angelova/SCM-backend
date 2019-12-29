@@ -1,5 +1,5 @@
 const express = require('express')
-const User = require('../models/user')
+const {User} = require('../models/user')
 const auth = require('../lib/auth')
 const { SuccessResponse, ErrorResponse, HTTPError,BadRequestError,ERROR_CODES } = require('../lib/responses');
 const router = new express.Router()
