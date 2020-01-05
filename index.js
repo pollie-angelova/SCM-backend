@@ -2,6 +2,7 @@ require('dotenv').config()
 const mongoose = require('mongoose')
 const express = require('express')
 const opn = require('opn');
+const cors = require('cors')
 require('./db');
 const userRouter = require('./routers/user')
 const deliveryRouter = require('./routers/delivery')
@@ -10,6 +11,7 @@ const vehiclePropsRouter = require('./routers/vehicleProps')
 const oauthRouter = require('./routers/oauth')
 const { HTTPError, ErrorResponse } = require('./lib/responses')
 const logger = require('./lib/logger')
+
 
 const app = express()
 
@@ -23,6 +25,7 @@ mongoose.connect(`mongodb://${process.env.DB_HOST}:27017/${process.env.DB_NAME}`
 const OAUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 const REDIRECT_URL = process.env.CLIENT_REDIRECT;
 
+app.use(cors())
 app.use(express.json())
 app.use(userRouter)
 app.use(deliveryRouter)
@@ -50,13 +53,13 @@ app.listen(process.env.PORT, () => {
     console.log(`Example app listening on port ${process.env.PORT}!`)
     
     // open browser and navigate to Google sign in
-    const params = new URLSearchParams({
-        client_id: process.env.CLIENT_ID,
-        redirect_uri: REDIRECT_URL,
-        scope: 'profile email',
-        access_type: 'online',
-        response_type: 'code',
-        state: Math.round(Math.random() * 10000000),
-    })
-    opn(`${OAUTH_URL}?${params.toString()}`);
+    // const params = new URLSearchParams({
+    //     client_id: process.env.CLIENT_ID,
+    //     redirect_uri: REDIRECT_URL,
+    //     scope: 'profile email',
+    //     access_type: 'online',
+    //     response_type: 'code',
+    //     state: Math.round(Math.random() * 10000000),
+    // })
+    // opn(`${OAUTH_URL}?${params.toString()}`);
 })

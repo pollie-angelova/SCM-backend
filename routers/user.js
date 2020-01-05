@@ -10,7 +10,7 @@ router.post('/users', auth.authorize('admin'), async (req, res) => {
 
     try {
 
-        const { name, email, password, role } = req.body
+        const { name, email, password, role = 'user' } = req.body
         const user = await User.register(email, password, name, role)
 
         const data = {
@@ -85,24 +85,26 @@ router.get('/users/:id', auth.authorize('admin'), async (req, res) => {
 })
 
 router.patch('/users/:id', auth.authorize('admin'), async (req, res) => {
-    const updates = Object.keys(req.body)
-    const allowedUpdates = ['name', 'email', 'password']
-    const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
-
-    if (!isValidOperation) {
-
-        throw new BadRequestError("Invalid update operation request", 400, ERROR_CODES.BAD_REQUEST)
-    }
-
+    
     try {
-        const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
+
+        const updates = Object.keys(req.body)
+        const allowedUpdates = ['name', 'email', 'password', 'role']
+        const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
+
+        if (!isValidOperation) {
+            throw new BadRequestError("Invalid update operation request", 400, ERROR_CODES.BAD_REQUEST)
+        }
+
+        let user = await User.findByIdAndUpdate(req.params.id, req.body, { runValidators: true })
 
         if (!user) {
             throw new HTTPError("User Not Found", 404, ERROR_CODES.NOT_FOUND)
         }
 
-        const data = {
+        user = await User.findById(req.params.id);
 
+        const data = {
             id: user.id,
             name: user.name,
             email: user.email,

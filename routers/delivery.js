@@ -1,13 +1,16 @@
 const express = require('express')
-const Delivery = require('../models/user')
+const {Delivery} = require('../models/delivery')
 const auth = require('../lib/auth')
 const { SuccessResponse, ErrorResponse, HTTPError, BadRequestError, ERROR_CODES } = require('../lib/responses');
 const router = new express.Router()
 
 router.post('/deliveries', auth.authorize('user', 'admin'), async (req, res) => {
-    const delivery = new Delivery(req.body)
+    
 
     try {
+
+        const senderId = req.user.sub;
+        const delivery = new Delivery({...req.body, senderId})
         
         await delivery.save()
 
