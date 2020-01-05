@@ -48,19 +48,19 @@ router.get('/vehicles/:id', auth.authorize('admin', 'courier'), async (req, res)
     const _id = req.params.id
 
     try {
-        const vehicles = await Vehicle.findById(_id)
+        const vehicle = await Vehicle.findById(_id)
 
-        if (!vehicles) {
+        if (!vehicle) {
             throw new HTTPError("Vehicle Not Found", 404, ERROR_CODES.NOT_FOUND)
         }
         
-        const data = vehicles.map(vehicle =>({
+        const data = {
             id: vehicle.id,
             driver: vehicle.driver,
             location: vehicle.location,
             dateCreated: vehicle.dateCreated,
             dateUpdated: vehicle.dateUpdated
-        }))
+        }
     
         res.json(new SuccessResponse(data))
 
@@ -80,19 +80,19 @@ router.patch('/vehicles/:id', auth.authorize('admin', 'courier'), async (req, re
     }
 
     try {
-        const vehicles = await Vehicle.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
+        const vehicle = await Vehicle.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
 
-       if (!vehicles) {
+       if (!vehicle) {
             throw new HTTPError("Vehicle Not Found", 404, ERROR_CODES.NOT_FOUND)
         }
 
-        const data = vehicles.map(vehicle =>({
+        const data = {
             id: vehicle.id,
             driver: vehicle.driver,
             location: vehicle.location,
             dateCreated: vehicle.dateCreated,
             dateUpdated: vehicle.dateUpdated
-        }))
+        }
 
         res.json(new SuccessResponse(data))
       
@@ -103,22 +103,13 @@ router.patch('/vehicles/:id', auth.authorize('admin', 'courier'), async (req, re
 
 router.delete('/vehicles/:id', auth.authorize('admin'), async (req, res) => {
     try {
-        const vehicles = await Vehicle.findByIdAndDelete(req.params.id)
+        const vehicle = await Vehicle.findByIdAndDelete(req.params.id)
 
-        if (!vehicles) {
+        if (!vehicle) {
             throw new HTTPError("Vehicle Not Found", 404, ERROR_CODES.NOT_FOUND)
         }
 
-        const data = vehicles.map(vehicle =>({
-
-            id: vehicle.id,
-            driver: vehicle.driver,
-            location: vehicle.location,
-            dateCreated: vehicle.dateCreated,
-            dateUpdated: vehicle.dateUpdated
-        }))
-
-        res.json(new SuccessResponse(data))
+        res.json(new SuccessResponse())
 
     } catch (e) {
         res.status(e.status || 500).json (new ErrorResponse(e.message, e.code))  

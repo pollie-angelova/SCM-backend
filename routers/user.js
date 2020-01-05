@@ -61,13 +61,13 @@ router.get('/users/:id', auth.authorize('admin'), async (req, res) => {
     const _id = req.params.id
 
     try {
-        const users = await User.findById(_id)
+        const user = await User.findById(_id)
 
-        if (!users) {
+        if (!user) {
             throw new HTTPError("User Not Found", 404, ERROR_CODES.NOT_FOUND)
         }
 
-        const data = users.map(user =>({
+        const data = {
 
             id: user.id,
             name: user.name,
@@ -75,7 +75,7 @@ router.get('/users/:id', auth.authorize('admin'), async (req, res) => {
             role: user.role,
             dateCreated: user.dateCreated,
             dateUpdated: user.dateUpdated,
-        }))
+        }
 
         res.json(new SuccessResponse(data))
 
@@ -95,13 +95,13 @@ router.patch('/users/:id', auth.authorize('admin'), async (req, res) => {
     }
 
     try {
-        const users = await User.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
+        const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
 
-        if (!users) {
+        if (!user) {
             throw new HTTPError("User Not Found", 404, ERROR_CODES.NOT_FOUND)
         }
 
-        const data = users.map(user => ({
+        const data = {
 
             id: user.id,
             name: user.name,
@@ -109,7 +109,7 @@ router.patch('/users/:id', auth.authorize('admin'), async (req, res) => {
             role: user.role,
             dateCreated: user.dateCreated,
             dateUpdated: user.dateUpdated,
-        }))
+        }
 
         res.json(new SuccessResponse(data))
 
@@ -122,24 +122,14 @@ router.patch('/users/:id', auth.authorize('admin'), async (req, res) => {
 
 router.delete('/users/:id', auth.authorize('admin'), async (req, res) => {
     try {
-        const users = await User.findByIdAndDelete(req.params.id)
+        const user = await User.findByIdAndDelete(req.params.id)
 
-        if (!users) {
+        if (!user) {
             
             throw new HTTPError("User not found", 404, ERROR_CODES.NOT_FOUND)
         }
 
-        const data = users.map( user =>({
-
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            dateCreated: user.dateCreated,
-            dateUpdated: user.dateUpdated,
-        }))
-
-        res.json(new SuccessResponse(data))
+        res.json(new SuccessResponse())
 
     } catch (e) {
 

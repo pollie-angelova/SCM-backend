@@ -44,7 +44,7 @@ router.get('/api/oauth/code', async(req, res) => {
         const accessToken = await auth.createToken(user.id, user.email, user.role)
 
         // redirect user to frontend
-        res.redirect(`${process.env.UI_URL}/#/token?token=${accessToken}`)
+       res.redirect(`${process.env.UI_URL}/#/token?token=${accessToken}`)
 
     } catch (e) {
         res.status(500).json({ error: e.message })
