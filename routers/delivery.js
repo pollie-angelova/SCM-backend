@@ -1,27 +1,27 @@
 const express = require('express')
 const {Delivery} = require('../models/delivery')
+const {User} = require('../models/user')
 const auth = require('../lib/auth')
 const { SuccessResponse, ErrorResponse, HTTPError, BadRequestError, ERROR_CODES } = require('../lib/responses');
 const router = new express.Router()
 
 router.post('/deliveries', auth.authorize('user', 'admin'), async (req, res) => {
     
-
     try {
 
-        const senderId = req.user.sub;
-        const delivery = new Delivery({...req.body, senderId})
+        const delivery = new Delivery(req.body)
         
         await delivery.save()
 
         const data = {
-
             id: delivery.id,
             source: delivery.source,
             destination: delivery.destination,
             description: delivery.role,
             senderId: delivery.senderId,
             recepientId: delivery.recepientId,
+            courierId: delivery.courierId,
+            weight: delivery.weight,
             history: delivery.history,
             dateCreated: delivery.dateCreated,
             dateUpdated: delivery.dateUpdated,
@@ -36,7 +36,19 @@ router.post('/deliveries', auth.authorize('user', 'admin'), async (req, res) => 
 
 router.get('/deliveries', auth.authorize('user', 'admin', 'courier'), async (req, res) => {
     try {
-        const deliveries = await Delivery.find()
+
+        const { role } = await User.findById(req.user.sub);
+        const where = {}
+        if (role === 'courier') {
+            where['courierId'] = req.user.sub
+        } else if (role === 'user') {
+            where['senderId'] = req.user.sub
+        }
+
+        const deliveries = await Delivery.find(where)
+            .populate('senderId')
+            .populate('recepientId')
+            .populate('courierId')
 
         if(!deliveries){
             throw new HTTPError("Delivery NOT Found", 404, ERROR_CODES.NOT_FOUND)
@@ -50,6 +62,8 @@ router.get('/deliveries', auth.authorize('user', 'admin', 'courier'), async (req
             description: delivery.role,
             senderId: delivery.senderId,
             recepientId: delivery.recepientId,
+            courierId: delivery.courierId,
+            weight: delivery.weight,
             history: delivery.history,
             dateCreated: delivery.dateCreated,
             dateUpdated: delivery.dateUpdated,
@@ -67,6 +81,9 @@ router.get('/deliveries/:id', auth.authorize('user', 'admin', 'courier'), async 
 
     try {
         const delivery = await Delivery.findById(_id)
+            .populate('senderId')
+            .populate('recepientId')
+            .populate('courierId')
 
         if(!delivery){
             throw new HTTPError("Delivery Not Found", 404, ERROR_CODES.NOT_FOUND)
@@ -80,6 +97,8 @@ router.get('/deliveries/:id', auth.authorize('user', 'admin', 'courier'), async 
             description: delivery.role,
             senderId: delivery.senderId,
             recepientId: delivery.recepientId,
+            courierId: delivery.courierId,
+            weight: delivery.weight,
             history: delivery.history,
             dateCreated: delivery.dateCreated,
             dateUpdated: delivery.dateUpdated,
@@ -94,7 +113,7 @@ router.get('/deliveries/:id', auth.authorize('user', 'admin', 'courier'), async 
 
 router.patch('/deliveries/:id', auth.authorize('admin', 'courier'), async (req, res) => {
     const updates = Object.keys(req.body)
-    const allowedUpdates = ['status']
+    const allowedUpdates = ['history']
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
 
     if (!isValidOperation) {
@@ -102,20 +121,24 @@ router.patch('/deliveries/:id', auth.authorize('admin', 'courier'), async (req, 
     }
 
     try {
-        const delivery = await Delivery.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
+        const delivery = await Delivery.findByIdAndUpdate(req.params.id, {...req.body, user: req.user.sub }, {new: true})
+            .populate('senderId')
+            .populate('recepientId')
+            .populate('courierId')
 
         if (!delivery) {
             throw new HTTPError("Delovery not found", 404, ERROR_CODES.NOT_FOUND)
         }
 
         const data = {
-
             id: delivery.id,
             source: delivery.source,
             destination: delivery.destination,
             description: delivery.role,
             senderId: delivery.senderId,
             recepientId: delivery.recepientId,
+            courierId: delivery.courierId,
+            weight: delivery.weight,
             history: delivery.history,
             dateCreated: delivery.dateCreated,
             dateUpdated: delivery.dateUpdated,
@@ -134,7 +157,6 @@ router.delete('/deliveries/:id', auth.authorize('admin'), async (req, res) => {
         if (!delivery) {
             throw new HTTPError("Delivery to delete not found", 404, ERROR_CODES.NOT_FOUND)
         }
-
 
         res.json(new SuccessResponse())
 
