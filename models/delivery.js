@@ -49,6 +49,15 @@ const DeliverySchema = new mongoose.Schema({
     description: {
         type: String
     },
+    weight: {
+        type: Number,
+        required: true,
+    },
+    courierId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
     senderId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
