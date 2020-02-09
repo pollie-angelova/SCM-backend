@@ -11,6 +11,7 @@ router.get('/transits', auth.authorize('admin'), async (req, res) => {
         const data = transits.map(transit => ({
             id: transit.id,
             deliveries: transit.deliveries,
+            legs: transit.legs,
             dateCreated: transit.dateCreated,
             dateUpdated: transit.dateUpdated,
         }));

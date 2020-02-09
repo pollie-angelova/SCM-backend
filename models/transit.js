@@ -18,6 +18,10 @@ const TransitSchema = new mongoose.Schema({
         ref: 'Delivery',
     }],
 
+    legs: [{
+        type: Object
+    }],
+
     status: {
         type: String,
         enum: [TRANSIT_STATUS.IN_PROGRESS, TRANSIT_STATUS.COMPLETED]
