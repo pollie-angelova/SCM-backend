@@ -1,13 +1,17 @@
 const express = require('express')
 const auth = require('../lib/auth')
-const { Transit } = require('../models/transit')
+const { Transit, TRANSIT_STATUS } = require('../models/transit')
 const { SuccessResponse, ErrorResponse, HTTPError, ERROR_CODES } = require('../lib/responses');
 const router = new express.Router()
 
 router.get('/transits', auth.authorize('admin'), async (req, res) => {
     try {
 
-        const transits = await Transit.find().populate('deliveries').populate('courierId');
+        const transits = await Transit
+            .find({ status: { $ne: TRANSIT_STATUS.COMPLETED } })
+            .populate('deliveries')
+            .populate('courierId');
+
         const data = transits.map(transit => ({
             id: transit.id,
             courierId: transit.courierId,
