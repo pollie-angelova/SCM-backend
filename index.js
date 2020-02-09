@@ -1,7 +1,6 @@
 require('dotenv').config()
 const mongoose = require('mongoose')
 const express = require('express')
-const opn = require('opn');
 const cors = require('cors')
 require('./db');
 const userRouter = require('./routers/user')
@@ -22,9 +21,6 @@ mongoose.connect(`mongodb://${process.env.DB_HOST}:27017/${process.env.DB_NAME}`
     useUnifiedTopology: true,
     useCreateIndex: true
 })
-
-const OAUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
-const REDIRECT_URL = process.env.CLIENT_REDIRECT;
 
 app.use(cors())
 app.use(express.json())
@@ -47,21 +43,6 @@ app.use(function (err, req, res) {
     res.status(err.status || 500).json(new ErrorResponse(err.message))
 })
 
-// app.listen(port, () => {
-//     console.log('Server is up on port ' + port)
-// })
-
 app.listen(process.env.PORT, () => {
     console.log(`Example app listening on port ${process.env.PORT}!`)
-    
-    // open browser and navigate to Google sign in
-    // const params = new URLSearchParams({
-    //     client_id: process.env.CLIENT_ID,
-    //     redirect_uri: REDIRECT_URL,
-    //     scope: 'profile email',
-    //     access_type: 'online',
-    //     response_type: 'code',
-    //     state: Math.round(Math.random() * 10000000),
-    // })
-    // opn(`${OAUTH_URL}?${params.toString()}`);
 })

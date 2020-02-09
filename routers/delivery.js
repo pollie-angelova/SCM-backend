@@ -6,6 +6,9 @@ const { TransitController } = require('../lib/transitController')
 const { SuccessResponse, ErrorResponse, HTTPError, BadRequestError, ERROR_CODES } = require('../lib/responses');
 const router = new express.Router()
 
+const { SES } = require('../lib/ses');
+const ses = new SES();
+
 router.post('/deliveries', auth.authorize('user', 'admin'), async (req, res) => {
 
     try {
@@ -149,6 +152,12 @@ router.patch('/deliveries/:id', auth.authorize('admin', 'courier'), async (req, 
             history: delivery.history,
             dateCreated: delivery.dateCreated,
             dateUpdated: delivery.dateUpdated,
+        }
+
+        if (data.history[data.history.length-1].name === 'delivered') {
+            console.log(`Sending delivery email to ${delivery.recepientId.email}`);
+            const body = `Dear ${delivery.recepientId.name}, you have a delivery with id: ${delivery.id}.`
+            await ses.sendDeliveredNotification(delivery.recepientId.email, body, 'New delivery');
         }
 
         res.json(new SuccessResponse(data))
