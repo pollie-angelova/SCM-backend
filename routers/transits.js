@@ -7,9 +7,10 @@ const router = new express.Router()
 router.get('/transits', auth.authorize('admin'), async (req, res) => {
     try {
 
-        const transits = await Transit.find().populate('deliveries');
+        const transits = await Transit.find().populate('deliveries').populate('courierId');
         const data = transits.map(transit => ({
             id: transit.id,
+            courierId: transit.courierId,
             deliveries: transit.deliveries,
             legs: transit.legs,
             dateCreated: transit.dateCreated,
