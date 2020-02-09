@@ -1,17 +1,21 @@
 const express = require('express')
-const {Delivery} = require('../models/delivery')
-const {User} = require('../models/user')
+const { Delivery } = require('../models/delivery')
+const { User } = require('../models/user')
 const auth = require('../lib/auth')
+const { TransitController } = require('../lib/transitController')
 const { SuccessResponse, ErrorResponse, HTTPError, BadRequestError, ERROR_CODES } = require('../lib/responses');
 const router = new express.Router()
 
 router.post('/deliveries', auth.authorize('user', 'admin'), async (req, res) => {
-    
+
     try {
 
-        const delivery = new Delivery(req.body)
-        
+        const delivery = new Delivery({...req.body, history: [{ name: 'new', user: req.user.sub }]});
+
         await delivery.save()
+
+        // create/update transit
+        await TransitController.build(delivery);
 
         const data = {
             id: delivery.id,
@@ -50,7 +54,7 @@ router.get('/deliveries', auth.authorize('user', 'admin', 'courier'), async (req
             .populate('recepientId')
             .populate('courierId')
 
-        if(!deliveries){
+        if (!deliveries) {
             throw new HTTPError("Delivery NOT Found", 404, ERROR_CODES.NOT_FOUND)
         }
 
@@ -85,7 +89,7 @@ router.get('/deliveries/:id', auth.authorize('user', 'admin', 'courier'), async 
             .populate('recepientId')
             .populate('courierId')
 
-        if(!delivery){
+        if (!delivery) {
             throw new HTTPError("Delivery Not Found", 404, ERROR_CODES.NOT_FOUND)
         }
 
@@ -121,14 +125,17 @@ router.patch('/deliveries/:id', auth.authorize('admin', 'courier'), async (req, 
     }
 
     try {
-        const delivery = await Delivery.findByIdAndUpdate(req.params.id, {...req.body, user: req.user.sub }, {new: true})
+        const delivery = await Delivery.findByIdAndUpdate(req.params.id, { ...req.body, user: req.user.sub }, { new: true })
             .populate('senderId')
             .populate('recepientId')
             .populate('courierId')
 
         if (!delivery) {
-            throw new HTTPError("Delovery not found", 404, ERROR_CODES.NOT_FOUND)
+            throw new HTTPError("Delivery not found", 404, ERROR_CODES.NOT_FOUND)
         }
+
+        // update transit
+        await TransitController.build(delivery);
 
         const data = {
             id: delivery.id,

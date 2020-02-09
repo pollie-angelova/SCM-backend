@@ -9,6 +9,7 @@ const deliveryRouter = require('./routers/delivery')
 const vehicleRouter = require('./routers/vehichles')
 const vehiclePropsRouter = require('./routers/vehicleProps')
 const oauthRouter = require('./routers/oauth')
+const transitsRouter = require('./routers/transits')
 const { HTTPError, ErrorResponse } = require('./lib/responses')
 const logger = require('./lib/logger')
 
@@ -32,6 +33,7 @@ app.use(deliveryRouter)
 app.use(vehicleRouter)
 app.use(vehiclePropsRouter)
 app.use(oauthRouter)
+app.use(transitsRouter)
 
 // catch 404 and forward it to error handler
 app.use((req, res, next) => {
