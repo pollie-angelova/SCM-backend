@@ -2,7 +2,6 @@ require('dotenv').config()
 const mongoose = require('mongoose')
 const express = require('express')
 const cors = require('cors')
-require('./db');
 const userRouter = require('./routers/user')
 const deliveryRouter = require('./routers/delivery')
 const vehicleRouter = require('./routers/vehichles')
@@ -15,12 +14,16 @@ const logger = require('./lib/logger')
 
 const app = express()
 
-// Database
+// Database connection
 mongoose.connect(`mongodb://${process.env.DB_HOST}:27017/${process.env.DB_NAME}`, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true
-})
+}).then(() => {
+    logger.info('Successfully connected to DB')
+}).catch(err => {
+    logger.error(`DB connetion error: ${err.message}`)
+});
 
 app.use(cors())
 app.use(express.json())
@@ -44,5 +47,5 @@ app.use(function (err, req, res) {
 })
 
 app.listen(process.env.PORT, () => {
-    console.log(`Example app listening on port ${process.env.PORT}!`)
+    logger.info(`SCM backend listening on port ${process.env.PORT}!`)
 })

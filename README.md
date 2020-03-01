@@ -10,6 +10,7 @@ Using the following technologies:
 * OAuth2 (Google Sign-In)
 * Google Maps Directions and DistanceMatrix APIs
 * AWS SES
+* ESLint
 
 # Installation and configuration
 
